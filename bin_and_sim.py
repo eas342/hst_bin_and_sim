@@ -28,6 +28,8 @@ class snr_sim(object):
         
         self.make_snr_table()
         
+        self.make_lc()
+        
     def make_model(self):
         """ Makes a Transit Model """
         
@@ -55,7 +57,7 @@ class snr_sim(object):
                 time = np.hstack(timeList)
         else:
             self.gapText = ''
-            time = np.arange(self.startTime,self.startTime + HSTPeriod * nOrbits,
+            time = np.arange(self.startTime,self.startTime + HSTPeriod * self.nOrbits,
                              cadence)
         self.BMparams = BMparams
         
@@ -132,28 +134,51 @@ class snr_sim(object):
         
         self.binTab = t
         self.origSNR = dat
-#
-#         for onePt in t:
-#            ymodel = self.BMmodel.light_curve(BMparams)
-#            ynoise = np.random.randn(len(time)) / onePt['SNR']
-#            ysim = ymodel + ynoise
-#            ysims.append(ysim)
-#
-#            popt,pcov = curve_fit(fit_fun,time,ysim,
-#                                  bounds=(boundsLower,boundsUpper),
-#                                  p0=[0.1,0.1,0.,0.])
-#                                  #p0=[0.1,0.1,6.,90.,0.,0.])
-#            sigma_approx = np.sqrt(np.diag(pcov))
-#            best_fitPt = fit_fun(time,*popt)
-#            yModelShow = fit_fun(xModelShow,*popt)
-#            yFits.append(yModelShow)
-#            pFitArr, pFitErrArr = [], []
-#            for oneParam, oneErr in zip(popt,sigma_approx):
-#                pFitArr.append(oneParam)
-#                pFitErrArr.append(oneErr)
-#            pFits.append(pFitArr)
-#            pFitErrs.append(pFitErrArr)
-#
+    
+    def make_lc(self):
+        """ Make light curves for all wavelengths """
+        ysims, yFits = [], []
+        for onePt in self.binTab:
+           ymodel = self.BMmodel.light_curve(self.BMparams)
+           ynoise = np.random.randn(len(self.time)) * onePt['frac sigma']
+           ysim = ymodel + ynoise
+           ysims.append(ysim)
+           
+           # popt,pcov = curve_fit(fit_fun,time,ysim,
+           #                       bounds=(boundsLower,boundsUpper),
+           #                       p0=[0.1,0.1,0.,0.])
+           #                       #p0=[0.1,0.1,6.,90.,0.,0.])
+           # sigma_approx = np.sqrt(np.diag(pcov))
+           # best_fitPt = fit_fun(time,*popt)
+           # yModelShow = fit_fun(xModelShow,*popt)
+           bm = batman.TransitModel(self.BMparams, self.xModelShow)    #initializes model
+           yModelShow = bm.light_curve(self.BMparams)
+           yFits.append(yModelShow)
+           # pFitArr, pFitErrArr = [], []
+           # for oneParam, oneErr in zip(popt,sigma_approx):
+           #     pFitArr.append(oneParam)
+           #     pFitErrArr.append(oneErr)
+           # pFits.append(pFitArr)
+           # pFitErrs.append(pFitErrArr)
+        self.ysims, self.yFits = ysims, yFits
+           
+    def plot(self):
+        """ Plots the time series """
+        offset = self.pp['Configuration']['offset']
+        fig, ax = plt.subplots()
+        for ind,onePt in enumerate(self.binTab):
+            ysim = self.ysims[ind] - offset * ind
+            yfit = self.yFits[ind] - offset * ind
+            ax.plot(self.time,ysim,'o',label="{:.2f} um".format(onePt['Wave']))
+            
+            ax.plot(self.xModelShow,yfit,label='')
+        
+        ax.set_xlabel('Time (min)')
+        ax.set_ylabel('Normalized Flux')
+        ax.legend()
+        fig.show()
+            #fig.savefig('sim_tseries_wasp12{}.pdf'.format(gapText))
+     
 # fitTab = Table()
 # fitTab['Wave'] = t['Wave']
 # pFits2D = np.array(pFits)
@@ -164,21 +189,7 @@ class snr_sim(object):
 #
 # fitTab.write('fit_results{}.csv'.format(gapText),overwrite=True)
 #
-# def plot():
-#     offset = 0.004
-#     fig, ax = plt.subplots()
-#     for ind,onePt in enumerate(t):
-#         ysim = ysims[ind] - offset * ind
-#         yfit = yFits[ind] - offset * ind
-#         ax.plot(time,ysim,'o',label=onePt['Wave'])
-#
-#         ax.plot(xModelShow,yfit,label='')
-#
-#     ax.set_xlabel('Time (min)')
-#     ax.set_ylabel('Normalized Flux')
-#     ax.legend()
-#     fig.show()
-#     fig.savefig('sim_tseries_wasp12{}.pdf'.format(gapText))
+
 #
 # def time_spec():
 #     fig, ax = plt.subplots()

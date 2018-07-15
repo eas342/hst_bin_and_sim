@@ -11,6 +11,8 @@ Transit Params: #Hellier et al. 2014
    limb_dark: quadratic  #limb darkening model
    u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
    fp: 0.0005          ## planet over star flux
+Configuration:
+   offset: 0.004 ## offset between time series
 Instrument Params:
    gaps: True     ## Include gaps from Earth occultations?
    nOrbits: 5     ## number of HST orbits
