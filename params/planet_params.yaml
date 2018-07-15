@@ -1,15 +1,16 @@
 Description:
    Name: WASP-100 b
    nmForFiles: wasp-100_b
-Transit Params:
-   Period: 1.09142       #orbital period (days)
-   Rp/R*: 0.11785           #planet radius (in units of stellar radii)
-   a/R*: 3.039            #semi-major axis (in units of stellar radii)
-   inc: 83.37            #orbital inclination (in degrees)
+Transit Params: #Hellier et al. 2014
+   Period: 2.849375        #orbital period (days)
+   Rp/R*: 0.08717          #planet radius (in units of stellar radii)
+   a/R*: 4.913            #semi-major axis (in units of stellar radii)
+   inc: 82.6             #orbital inclination (in degrees)
    ecc: 0.               #eccentricity
    w: 90.                #longitude of periastron (in degrees)
    limb_dark: quadratic  #limb darkening model
    u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
+   fp: 0.0005          ## planet over star flux
 Instrument Params:
    gaps: True     ## Include gaps from Earth occultations?
    nOrbits: 5     ## number of HST orbits
@@ -17,4 +18,5 @@ Instrument Params:
    instrument: WFC3 ## instrument
    transitType: Eclipse ## Eclipse or Transit?
    exposureCadence: 6. ## time between exposures
-   
+   nBinPoints: 20 ## number of spectral points to bin
+   snrFile: calcs/wasp100_scan_mode.csv ## table of source and noise counts from ETC 

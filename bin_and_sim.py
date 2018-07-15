@@ -26,6 +26,7 @@ class snr_sim(object):
         
         self.make_model()
         
+        self.make_snr_table()
         
     def make_model(self):
         """ Makes a Transit Model """
@@ -87,7 +88,50 @@ class snr_sim(object):
         # t['Wave'] = np.arange(0.38,0.73,0.05)
         # t['SNR'] = 1./(3e-4 * np.ones(len(t)))
         
+    def make_snr_table(self,nBinPoints=None):
+        """ Makes a table of SNR values """
+        instrument = self.pp['Instrument Params']['instrument']
         
+        dat = ascii.read(self.pp['Instrument Params']['snrFile'])
+        if 'thermal' not in dat.colnames:
+            dat['thermal'] = 0 ## if thermal flux not included (in optical say)
+        
+        if nBinPoints is None:
+            npts = self.pp['Instrument Params']['nBinPoints']
+        else:
+            npts = nBinPoints
+        
+        dat['um'] = dat['wavelength'] / 1e4
+        
+        nSpecPix = len(dat)
+        waveArr, snrArr = [], []
+        
+        ## total background counts
+        backTot = dat['dark_counts'] + dat['sky_counts'] + dat['thermal']
+        
+        for binInd in np.arange(0,len(dat),npts):
+            if binInd + npts < nSpecPix - 1:
+                binPts = np.arange(npts) + binInd
+                waveBin = np.mean(dat['um'][binPts])
+                
+                fluxBin = np.sum(dat['total_counts'][binPts])
+                fluxBack = np.sum(backTot[binPts])
+                ## Read noise is already squared in the input file (see online table)
+                readNArr = dat['readnoise'][binPts]
+                
+                ns = np.sqrt(fluxBin + fluxBack + np.sum(readNArr))
+                snr = fluxBin / ns
+                
+                snrArr.append(snr)
+                waveArr.append(waveBin)
+                
+        t = Table()
+        t['Wave'] = waveArr
+        t['SNR'] = snrArr
+        t['frac sigma'] = 1./t['SNR']
+        
+        self.binTab = t
+        self.origSNR = dat
 #
 #         for onePt in t:
 #            ymodel = self.BMmodel.light_curve(BMparams)
