@@ -10,15 +10,15 @@ Transit Params: #Hellier et al. 2014
    w: 90.                #longitude of periastron (in degrees)
    limb_dark: quadratic  #limb darkening model
    u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
-   fp: 0.0005          ## planet over star flux
+   fp: 0.0005          ## planet over star flux (only used for eclipses)
 Configuration:
-   offset: 0.004 ## offset between time series
+   offset: 0.0007 ## offset between time series
 Instrument Params:
    gaps: True     ## Include gaps from Earth occultations?
    nOrbits: 5     ## number of HST orbits
-   startTime: -170 ## start time (minutes before transit center)
+   startTime: -260 ## start time (minutes before transit center)
    instrument: WFC3 ## instrument
-   transitType: Eclipse ## Eclipse or Transit?
+   transitType: secondary ## primary or secondary?
    exposureCadence: 6. ## time between exposures
    nBinPoints: 20 ## number of spectral points to bin
    snrFile: calcs/wasp100_scan_mode.csv ## table of source and noise counts from ETC 

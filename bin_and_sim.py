@@ -24,6 +24,7 @@ class snr_sim(object):
         self.gaps = self.pp['Instrument Params']['gaps']
         self.startTime = self.pp['Instrument Params']['startTime']
         
+        self.transType = self.pp['Instrument Params']['transitType']
         self.make_model()
         
         self.make_snr_table()
@@ -36,8 +37,15 @@ class snr_sim(object):
         Bp = self.pp['Transit Params']
         
         BMparams = batman.TransitParams()
-        BMparams.t0 = 0.         #time of inferior conjunction
         BMparams.per = Bp['Period'] * 24. * 60.  #orbital period (min)
+        
+        if self.transType == 'secondary':
+            BMparams.t_secondary = 0.
+            BMparams.t0 = BMparams.per * (-0.5)
+            BMparams.fp = Bp['fp']
+        else:
+            BMparams.t0 = 0.         #time of inferior conjunction
+        
         BMparams.rp = Bp['Rp/R*']  #planet radius (in units of stellar radii)
         BMparams.a = Bp['a/R*']   #semi-major axis (in units of stellar radii)
         BMparams.inc = Bp['inc']  #orbital inclination (in degrees)
@@ -61,7 +69,8 @@ class snr_sim(object):
                              cadence)
         self.BMparams = BMparams
         
-        self.BMmodel = batman.TransitModel(BMparams, time)    #initializes model
+        self.BMmodel = batman.TransitModel(BMparams, time,
+                                           transittype=self.transType) #initializes model
         self.time = time
         
         self.xModelShow = np.linspace(np.min(time),np.max(time),1024)
@@ -132,7 +141,12 @@ class snr_sim(object):
         t['SNR'] = snrArr
         t['frac sigma'] = 1./t['SNR']
         
-        self.binTab = t
+        self.binTabFull = t ## full points
+        ## discard points with much lower SNR
+        medSNR = np.median(t['SNR'])
+        goodP = t['SNR'] > 0.5 * medSNR
+        
+        self.binTab = t[goodP]
         self.origSNR = dat
     
     def make_lc(self):
@@ -151,7 +165,8 @@ class snr_sim(object):
            # sigma_approx = np.sqrt(np.diag(pcov))
            # best_fitPt = fit_fun(time,*popt)
            # yModelShow = fit_fun(xModelShow,*popt)
-           bm = batman.TransitModel(self.BMparams, self.xModelShow)    #initializes model
+           bm = batman.TransitModel(self.BMparams, self.xModelShow,
+                                    transittype=self.transType) #initializes model
            yModelShow = bm.light_curve(self.BMparams)
            yFits.append(yModelShow)
            # pFitArr, pFitErrArr = [], []
