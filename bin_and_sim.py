@@ -6,6 +6,7 @@ from astropy.table import Table
 import batman
 from scipy.optimize import curve_fit
 import yaml
+import glob
 
 np.random.seed(3)
 
@@ -15,9 +16,10 @@ class snr_sim(object):
     """ 
     Class to store the SNR simulation
     """
-    def __init__(self,paramFile='params/planet_params.yaml'):
+    def __init__(self,paramFile='params/planet_params.yaml',interactive=False):
         self.pp = yaml.load(open(paramFile))
         self.paramFile = paramFile
+        self.interactive = interactive ## Interactive mode? (ie. show plots on screen?)
         self.nmForFiles = self.pp['Description']['nmForFiles']
         
         self.nOrbits = self.pp['Instrument Params']['nOrbits']
@@ -191,8 +193,10 @@ class snr_sim(object):
         ax.set_xlabel('Time (min)')
         ax.set_ylabel('Normalized Flux')
         ax.legend()
-        fig.show()
-            #fig.savefig('sim_tseries_wasp12{}.pdf'.format(gapText))
+        if self.interactive == True:
+            fig.show()
+        
+        fig.savefig('plots/sim_tseries_{}.pdf'.format(self.nmForFiles))
      
 # fitTab = Table()
 # fitTab['Wave'] = t['Wave']
@@ -215,4 +219,9 @@ class snr_sim(object):
 #
 #     fig.show()
 #     fig.savefig('sim_t0_spectrum_wasp12{}.pdf'.format(gapText))
-#
+if __name__ == "__main__":
+    paramList = glob.glob('params/*')
+    for oneFile in paramList:
+        s1 = snr_sim(oneFile)
+        s1.plot()
+    
