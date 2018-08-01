@@ -13,10 +13,16 @@ Transit Params: #Hellier et al. 2014
    fp: 0.0005          ## planet over star flux (only used for eclipses)
 Configuration:
    offset: 0.0007 ## offset between time series
+   yRange: [0.995,1.0015] ## Y Range of plot
+   xRange: null ## X range of the plot
+Systematic Params:
+   includeRamp: False ## Include a ramp model?
+   rampAmp: 0.0035 ## amplitude of ramp effect
+   rampTScale: 30. ## timescale of ramp, in minutes
 Instrument Params:
    gaps: True     ## Include gaps from Earth occultations?
    nOrbits: 5     ## number of HST orbits
-   startTime: -260 ## start time (minutes before transit center)
+   startTime: -290 ## start time (minutes before transit center)
    instrument: WFC3 ## instrument
    transitType: secondary ## primary or secondary?
    exposureCadence: 6. ## time between exposures

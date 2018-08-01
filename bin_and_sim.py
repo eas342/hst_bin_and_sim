@@ -11,6 +11,8 @@ import glob
 np.random.seed(3)
 
 HSTPeriod = 96. ## minutes
+tauRamp = 90. ## minutes
+
 
 class snr_sim(object):
     """ 
@@ -27,6 +29,7 @@ class snr_sim(object):
         self.startTime = self.pp['Instrument Params']['startTime']
         
         self.transType = self.pp['Instrument Params']['transitType']
+        self.include_ramp = self.pp['Systematic Params']['includeRamp']
         self.make_model()
         
         self.make_snr_table()
@@ -74,6 +77,7 @@ class snr_sim(object):
         self.BMmodel = batman.TransitModel(BMparams, time,
                                            transittype=self.transType) #initializes model
         self.time = time
+        self.t_start = np.min(self.time)
         
         self.xModelShow = np.linspace(np.min(time),np.max(time),1024)
         
@@ -151,13 +155,31 @@ class snr_sim(object):
         self.binTab = t[goodP]
         self.origSNR = dat
     
+    def y_systematics(self,time):
+        """ Systematic model to add non-IID Gaussian white noise
+        This systematic model is multiplied by the theoretical transit light curve
+        Parameters
+        ------------
+        time: numpy array
+            Time in minutes
+        """
+        if self.include_ramp == True:
+            amp = self.pp['Systematic Params']['rampAmp']
+            tau = self.pp['Systematic Params']['rampTScale']
+            ysys = (1. - amp * np.exp(-(time - self.t_start)/tau))
+        else:
+            ysys = np.ones_like(time,dtype=np.float)
+        
+        return ysys
+    
     def make_lc(self):
         """ Make light curves for all wavelengths """
         ysims, yFits = [], []
         for onePt in self.binTab:
            ymodel = self.BMmodel.light_curve(self.BMparams)
+           ysys = self.y_systematics(self.time)
            ynoise = np.random.randn(len(self.time)) * onePt['frac sigma']
-           ysim = ymodel + ynoise
+           ysim = ymodel * ysys + ynoise
            ysims.append(ysim)
            
            # popt,pcov = curve_fit(fit_fun,time,ysim,
@@ -169,7 +191,8 @@ class snr_sim(object):
            # yModelShow = fit_fun(xModelShow,*popt)
            bm = batman.TransitModel(self.BMparams, self.xModelShow,
                                     transittype=self.transType) #initializes model
-           yModelShow = bm.light_curve(self.BMparams)
+           ysysModel = self.y_systematics(self.xModelShow)
+           yModelShow = bm.light_curve(self.BMparams) * ysysModel
            yFits.append(yModelShow)
            # pFitArr, pFitErrArr = [], []
            # for oneParam, oneErr in zip(popt,sigma_approx):
@@ -186,13 +209,20 @@ class snr_sim(object):
         for ind,onePt in enumerate(self.binTab):
             ysim = self.ysims[ind] - offset * ind
             yfit = self.yFits[ind] - offset * ind
-            ax.plot(self.time,ysim,'o',label="{:.2f} um".format(onePt['Wave']))
+            waveLabel = "{:.2f} um".format(onePt['Wave'])
+            ax.plot(self.time,ysim,'o',label=waveLabel)
             
             ax.plot(self.xModelShow,yfit,label='')
+            
+            ax.text(np.max(self.time),np.max(yfit),waveLabel,
+                    verticalalignment='center',
+                    horizontalalignment='left')
         
+        ax.set_xlim(self.pp['Configuration']['xRange'])
+        ax.set_ylim(self.pp['Configuration']['yRange'])
         ax.set_xlabel('Time (min)')
         ax.set_ylabel('Normalized Flux')
-        ax.legend()
+        #ax.legend()
         if self.interactive == True:
             fig.show()
         
