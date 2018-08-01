@@ -8,4 +8,5 @@ Steps:
  * Calculate SNR using the online ETC and download the CSV table of results
  * Place the results in `calcs/`
  * Edit the observing parameters, using `params/planet_params.yaml` as a guide.
+ * Run on the command line with `python bin_and_sim.py`
 
