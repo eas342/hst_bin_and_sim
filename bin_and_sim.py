@@ -106,7 +106,8 @@ class snr_sim(object):
         # t['SNR'] = 1./(3e-4 * np.ones(len(t)))
         
     def make_snr_table(self,nBinPoints=None):
-        """ Makes a table of SNR values """
+        """ Makes a table of SNR values per exposure
+        """
         instrument = self.pp['Instrument Params']['instrument']
         
         dat = ascii.read(self.pp['Instrument Params']['snrFile'])
@@ -154,6 +155,22 @@ class snr_sim(object):
         
         self.binTab = t[goodP]
         self.origSNR = dat
+    
+    def make_depth_table(self):
+        """ Make a table of Depth versus wavelength """
+        t = Table()
+        t['Wave'] = self.binTab['Wave']
+        inPoints = self.BMmodel.ds < 1. ## only count w/ halfway at the limb
+        outPoints = self.BMmodel.ds >= 1.
+        nIn = np.sum(inPoints)
+        nOut = np.sum(outPoints)
+        
+        tdepthErr = []
+        inErr = self.binTab['frac sigma'] / np.sqrt(nIn)
+        outErr = self.binTab['frac sigma'] / np.sqrt(nOut)
+        totErr = np.sqrt(inErr**2 + outErr**2)
+        t['Depth Err (ppm)'] = totErr * 1e6
+        t.write('output/sim_depths_{}.csv'.format(self.nmForFiles))
     
     def y_systematics(self,time):
         """ Systematic model to add non-IID Gaussian white noise
@@ -227,7 +244,10 @@ class snr_sim(object):
             fig.show()
         
         fig.savefig('plots/sim_tseries_{}.pdf'.format(self.nmForFiles))
-     
+        
+        
+        
+
 # fitTab = Table()
 # fitTab['Wave'] = t['Wave']
 # pFits2D = np.array(pFits)
