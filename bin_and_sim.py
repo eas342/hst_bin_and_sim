@@ -274,4 +274,5 @@ if __name__ == "__main__":
     for oneFile in paramList:
         s1 = snr_sim(oneFile)
         s1.plot()
+        s1.make_depth_table()
     
