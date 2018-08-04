@@ -11,6 +11,7 @@ Transit Params: #Hellier et al. 2014
    limb_dark: quadratic  #limb darkening model
    u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
    fp: 0.0005          ## planet over star flux (only used for eclipses)
+   depth file: null ## file for depth spectrum
 Configuration:
    offset: 0.0007 ## offset between time series
    yRange: [0.995,1.0015] ## Y Range of plot

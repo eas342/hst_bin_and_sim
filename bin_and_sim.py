@@ -7,6 +7,7 @@ import batman
 from scipy.optimize import curve_fit
 import yaml
 import glob
+from scipy.interpolate import interp1d
 
 np.random.seed(3)
 
@@ -30,6 +31,8 @@ class snr_sim(object):
         
         self.transType = self.pp['Instrument Params']['transitType']
         self.include_ramp = self.pp['Systematic Params']['includeRamp']
+        
+        self.depth_file = self.pp['Transit Params']['depth file']
         self.make_model()
         
         self.make_snr_table()
@@ -170,7 +173,7 @@ class snr_sim(object):
         outErr = self.binTab['frac sigma'] / np.sqrt(nOut)
         totErr = np.sqrt(inErr**2 + outErr**2)
         t['Depth Err (ppm)'] = totErr * 1e6
-        t.write('output/sim_depths_{}.csv'.format(self.nmForFiles))
+        t.write('output/sim_depths_{}.csv'.format(self.nmForFiles),overwrite=True)
     
     def y_systematics(self,time):
         """ Systematic model to add non-IID Gaussian white noise
@@ -192,31 +195,46 @@ class snr_sim(object):
     def make_lc(self):
         """ Make light curves for all wavelengths """
         ysims, yFits = [], []
+        
+        if self.depth_file is not None:
+            columns = ['wavelength','depth sim','depth truth','depth err']
+            depthTable = ascii.read(self.depth_file,names=columns)
+            f = interp1d(depthTable['wavelength'],depthTable['depth truth'])
+            yInterp = f(self.binTab['Wave'])
+            self.binTab['Model Depth'] = yInterp
+        
         for onePt in self.binTab:
-           ymodel = self.BMmodel.light_curve(self.BMparams)
-           ysys = self.y_systematics(self.time)
-           ynoise = np.random.randn(len(self.time)) * onePt['frac sigma']
-           ysim = ymodel * ysys + ynoise
-           ysims.append(ysim)
-           
-           # popt,pcov = curve_fit(fit_fun,time,ysim,
-           #                       bounds=(boundsLower,boundsUpper),
-           #                       p0=[0.1,0.1,0.,0.])
-           #                       #p0=[0.1,0.1,6.,90.,0.,0.])
-           # sigma_approx = np.sqrt(np.diag(pcov))
-           # best_fitPt = fit_fun(time,*popt)
-           # yModelShow = fit_fun(xModelShow,*popt)
-           bm = batman.TransitModel(self.BMparams, self.xModelShow,
-                                    transittype=self.transType) #initializes model
-           ysysModel = self.y_systematics(self.xModelShow)
-           yModelShow = bm.light_curve(self.BMparams) * ysysModel
-           yFits.append(yModelShow)
-           # pFitArr, pFitErrArr = [], []
-           # for oneParam, oneErr in zip(popt,sigma_approx):
-           #     pFitArr.append(oneParam)
-           #     pFitErrArr.append(oneErr)
-           # pFits.append(pFitArr)
-           # pFitErrs.append(pFitErrArr)
+            if 'Model Depth' in self.binTab.colnames:
+                if self.transType == 'secondary':
+                    self.BMparams.fp = onePt['Model Depth']
+                else:
+                    print("not yet implemented")
+                    pdb.set_trace()
+            
+            ymodel = self.BMmodel.light_curve(self.BMparams)
+            ysys = self.y_systematics(self.time)
+            ynoise = np.random.randn(len(self.time)) * onePt['frac sigma']
+            ysim = ymodel * ysys + ynoise
+            ysims.append(ysim)
+            
+            # popt,pcov = curve_fit(fit_fun,time,ysim,
+            #                       bounds=(boundsLower,boundsUpper),
+            #                       p0=[0.1,0.1,0.,0.])
+            #                       #p0=[0.1,0.1,6.,90.,0.,0.])
+            # sigma_approx = np.sqrt(np.diag(pcov))
+            # best_fitPt = fit_fun(time,*popt)
+            # yModelShow = fit_fun(xModelShow,*popt)
+            bm = batman.TransitModel(self.BMparams, self.xModelShow,
+                                     transittype=self.transType) #initializes model
+            ysysModel = self.y_systematics(self.xModelShow)
+            yModelShow = bm.light_curve(self.BMparams) * ysysModel
+            yFits.append(yModelShow)
+            # pFitArr, pFitErrArr = [], []
+            # for oneParam, oneErr in zip(popt,sigma_approx):
+            #     pFitArr.append(oneParam)
+            #     pFitErrArr.append(oneErr)
+            # pFits.append(pFitArr)
+            # pFitErrs.append(pFitErrArr)
         self.ysims, self.yFits = ysims, yFits
            
     def plot(self):
