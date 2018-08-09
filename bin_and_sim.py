@@ -210,12 +210,19 @@ class snr_sim(object):
             
             amp = self.pp['Systematic Params']['rampAmp']
             tau = self.pp['Systematic Params']['rampTScale']
+            
             for oneExp in np.arange(self.nExposures):
                 ptsExposure = ((time >= self.exposureStarts[oneExp]) & 
                               (time <= self.exposureEnds[oneExp]))
                 
+                if oneExp >= 1:
+                    useAmp = amp * 0.5
+                    ## Smaller ramp effect on subsequent orbits
+                else:
+                    useAmp = amp
+                
                 tZero = self.exposureStarts[oneExp]
-                ysysExposure = (1. - amp * np.exp(-(time - tZero)/tau))
+                ysysExposure = (1. - useAmp * np.exp(-(time - tZero)/tau))
                 ysys[ptsExposure] = ysysExposure[ptsExposure]
                 
         else:
