@@ -65,16 +65,37 @@ class snr_sim(object):
         cadence = self.pp['Instrument Params']['exposureCadence']
         if self.gaps == True:
             timeList = []
+            expList = []
+            self.exposureStarts = []
+            self.exposureEnds = []
+            
             for oneOrbit in np.arange(self.nOrbits):
-                timeList.append(np.arange(self.startTime + oneOrbit * HSTPeriod,
-                                          self.startTime + 0.5 * HSTPeriod + oneOrbit * HSTPeriod,
-                                          cadence))
-                self.gapText = '_gaps'
-                time = np.hstack(timeList)
+                timesThisExposure = np.arange(self.startTime + oneOrbit * HSTPeriod,
+                                             self.startTime + 0.5 * HSTPeriod + oneOrbit * HSTPeriod,
+                                             cadence)
+                                           
+                self.exposureStarts.append(np.min(timesThisExposure))
+                self.exposureEnds.append(np.max(timesThisExposure))
+                
+                expList.append(np.ones(len(timesThisExposure),dtype=np.int) * oneOrbit)
+                
+                timeList.append(timesThisExposure)
+            
+            self.gapText = '_gaps'
+            time = np.hstack(timeList)
+            self.expArray = np.hstack(expList)
+            self.nExposures = self.nOrbits
+            
         else:
             self.gapText = ''
             time = np.arange(self.startTime,self.startTime + HSTPeriod * self.nOrbits,
                              cadence)
+            self.exposureStarts = [np.min(time)]
+            self.exposureEnds = [np.max(time)]
+            self.expArray = np.zeros(len(time),dtype=np.int)
+            self.nExposures = 1
+        
+        
         self.BMparams = BMparams
         
         self.BMmodel = batman.TransitModel(BMparams, time,
@@ -183,10 +204,20 @@ class snr_sim(object):
         time: numpy array
             Time in minutes
         """
+        
         if self.include_ramp == True:
+            ysys = np.ones_like(time,dtype=np.float) * np.nan
+            
             amp = self.pp['Systematic Params']['rampAmp']
             tau = self.pp['Systematic Params']['rampTScale']
-            ysys = (1. - amp * np.exp(-(time - self.t_start)/tau))
+            for oneExp in np.arange(self.nExposures):
+                ptsExposure = ((time >= self.exposureStarts[oneExp]) & 
+                              (time <= self.exposureEnds[oneExp]))
+                
+                tZero = self.exposureStarts[oneExp]
+                ysysExposure = (1. - amp * np.exp(-(time - tZero)/tau))
+                ysys[ptsExposure] = ysysExposure[ptsExposure]
+                
         else:
             ysys = np.ones_like(time,dtype=np.float)
         
