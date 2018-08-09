@@ -1,6 +1,6 @@
 Description:
    Name: WASP-100 b
-   nmForFiles: wasp-100_b_ramp
+   nmForFiles: wasp-100_b_gaps
 Transit Params: #Hellier et al. 2014
    Period: 2.849375        #orbital period (days)
    Rp/R*: 0.08717          #planet radius (in units of stellar radii)
@@ -14,8 +14,8 @@ Transit Params: #Hellier et al. 2014
    depth file: null ## file for depth spectrum
 Configuration:
    offset: 0.0007 ## offset between time series
-   yRange: [0.992,1.0005] ## Y Range of plot
-   xRange: null ## X range of the plot
+   yRange: [0.994,1.001] ## Y Range of plot
+   xRange: [-320,280] ## X range of the plot
 Systematic Params:
    includeRamp: True ## Include a ramp model?
    rampAmp: 0.0035 ## amplitude of ramp effect
