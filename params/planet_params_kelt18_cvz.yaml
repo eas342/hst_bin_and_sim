@@ -1,0 +1,31 @@
+Description:
+   Name: KELT-18 b
+   nmForFiles: kelt-18_b_cvz
+Transit Params: #McLeod et al. 2017
+   Period: 2.8717518       #orbital period (days)
+   Rp/R*: 0.08462          #planet radius (in units of stellar radii)
+   a/R*: 5.138           #semi-major axis (in units of stellar radii)
+   inc: 88.86            #orbital inclination (in degrees)
+   ecc: 0.               #eccentricity
+   w: 90.                #longitude of periastron (in degrees)
+   limb_dark: quadratic  #limb darkening model
+   u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
+   fp: 0.0004           ## planet over star flux (only used for eclipses)
+   depth file: calcs/KELT-18b_kmr_1eclipse_R100_CK.div ## file for depth spectrum
+Configuration:
+   offset: 0.0007 ## offset between time series
+   yRange: [0.995,1.0015] ## Y Range of plot
+   xRange: [-340,330] ## X range of the plot
+Systematic Params:
+   includeRamp: True ## Include a ramp model?
+   rampAmp: 0.004 ## amplitude of ramp effect
+   rampTScale: 30. ## timescale of ramp, in minutes
+Instrument Params:
+   gaps: False     ## Include gaps from Earth occultations?
+   nOrbits: 6     ## number of HST orbits
+   startTime: -320 ## start time (minutes before transit center)
+   instrument: WFC3 ## instrument
+   transitType: secondary ## primary or secondary?
+   exposureCadence: 6. ## time between exposures
+   nBinPoints: 20 ## number of spectral points to bin
+   snrFile: calcs/kelt18_scan_mode.csv ## table of source and noise counts from ETC 
