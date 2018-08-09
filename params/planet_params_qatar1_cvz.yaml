@@ -1,17 +1,17 @@
 Description:
-   Name: WASP-100 b
-   nmForFiles: wasp-100_b_cvz
-Transit Params: #Hellier et al. 2014
-   Period: 2.849375        #orbital period (days)
-   Rp/R*: 0.08717          #planet radius (in units of stellar radii)
-   a/R*: 4.913            #semi-major axis (in units of stellar radii)
-   inc: 82.6             #orbital inclination (in degrees)
+   Name: Qatar 1 b
+   nmForFiles: qatar-1_b_cvz
+Transit Params: #Collins et al. 2017
+   Period: 1.4200242        #orbital period (days)
+   Rp/R*: 0.14629         #planet radius (in units of stellar radii)
+   a/R*: 6.247            #semi-major axis (in units of stellar radii)
+   inc: 84.08             #orbital inclination (in degrees)
    ecc: 0.               #eccentricity
    w: 90.                #longitude of periastron (in degrees)
    limb_dark: quadratic  #limb darkening model
    u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
-   fp: 0.00038          ## planet over star flux (only used for eclipses)
-   depth file: spectra/WASP-100b_1eclipse_R100_CK.div ## file for depth spectrum
+   fp: 0.0003            ## planet over star flux (only used for eclipses)
+   depth file: null ## file for depth spectrum
 Configuration:
    offset: 0.0007 ## offset between time series
    yRange: [0.994,1.001] ## Y Range of plot
@@ -28,4 +28,4 @@ Instrument Params:
    transitType: secondary ## primary or secondary?
    exposureCadence: 6. ## time between exposures
    nBinPoints: 20 ## number of spectral points to bin
-   snrFile: calcs/wasp100_scan_mode.csv ## table of source and noise counts from ETC 
+   snrFile: calcs/qatar1b_scan_mode.csv ## table of source and noise counts from ETC 

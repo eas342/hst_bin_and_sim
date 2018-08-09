@@ -11,7 +11,7 @@ Transit Params: #McLeod et al. 2017
    limb_dark: quadratic  #limb darkening model
    u: [0.4, 0.1]         #limb darkening coefficients [u1, u2]
    fp: 0.0004           ## planet over star flux (only used for eclipses)
-   depth file: calcs/KELT-18b_kmr_1eclipse_R100_CK.div ## file for depth spectrum
+   depth file: spectra/KELT-18b_kmr_1eclipse_R100_CK.div ## file for depth spectrum
 Configuration:
    offset: 0.0007 ## offset between time series
    yRange: [0.995,1.0015] ## Y Range of plot
