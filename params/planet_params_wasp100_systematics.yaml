@@ -15,15 +15,15 @@ Transit Params: #Hellier et al. 2014
 Configuration:
    offset: 0.0007 ## offset between time series
    yRange: [0.994,1.001] ## Y Range of plot
-   xRange: [-320,280] ## X range of the plot
+   xRange: [-320,390] ## X range of the plot
 Systematic Params:
    includeRamp: True ## Include a ramp model?
    rampAmp: 0.0035 ## amplitude of ramp effect
    rampTScale: 30. ## timescale of ramp, in minutes
 Instrument Params:
    gaps: True     ## Include gaps from Earth occultations?
-   nOrbits: 5     ## number of HST orbits
-   startTime: -290 ## start time (minutes before transit center)
+   nOrbits: 6     ## number of HST orbits
+   startTime: -315 ## start time (minutes before transit center)
    instrument: WFC3 ## instrument
    transitType: secondary ## primary or secondary?
    exposureCadence: 6. ## time between exposures
