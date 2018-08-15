@@ -287,7 +287,7 @@ class snr_sim(object):
             
             ax.plot(self.xModelShow,yfit,label='')
             
-            ax.text(np.max(self.time),np.nanmax(yfit),waveLabel,
+            ax.text(np.max(self.time) + 10,np.nanmax(yfit),waveLabel,
                     verticalalignment='center',
                     horizontalalignment='left')
         
