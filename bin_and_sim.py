@@ -278,7 +278,7 @@ class snr_sim(object):
     def plot(self):
         """ Plots the time series """
         offset = self.pp['Configuration']['offset']
-        fig, ax = plt.subplots()
+        fig, ax = plt.subplots(figsize=(5.3,3.5))
         for ind,onePt in enumerate(self.binTab):
             ysim = self.ysims[ind] - offset * ind
             yfit = self.yFits[ind] - offset * ind
@@ -299,7 +299,7 @@ class snr_sim(object):
         if self.interactive == True:
             fig.show()
         
-        fig.savefig('plots/sim_tseries_{}.pdf'.format(self.nmForFiles))
+        fig.savefig('plots/sim_tseries_{}.pdf'.format(self.nmForFiles),bbox_inches='tight')
         
         
         
