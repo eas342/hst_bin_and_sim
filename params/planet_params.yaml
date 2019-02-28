@@ -26,6 +26,6 @@ Instrument Params:
    startTime: -290 ## start time (minutes before transit center)
    instrument: WFC3 ## instrument
    transitType: secondary ## primary or secondary?
-   exposureCadence: 6. ## time between exposures
+   exposureCadence: 6. ## time between exposures in minutes
    nBinPoints: 20 ## number of spectral points to bin
    snrFile: calcs/wasp100_scan_mode.csv ## table of source and noise counts from ETC 
