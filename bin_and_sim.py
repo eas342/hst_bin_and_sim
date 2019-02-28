@@ -131,6 +131,10 @@ class snr_sim(object):
         
     def make_snr_table(self,nBinPoints=None):
         """ Makes a table of SNR values per exposure
+        
+        Note: To check the results of this table against the plot
+        in the online ETC that gives SNR per resel,
+        Use nBinpoints =2
         """
         instrument = self.pp['Instrument Params']['instrument']
         
